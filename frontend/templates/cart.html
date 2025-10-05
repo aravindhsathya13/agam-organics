@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Agam Organics{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="container">
+        <h1 class="page-title">Shopping Cart</h1>
+
+        {% if cart['items'] %}
+        <div class="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items-section">
+                {% for item in cart['items'] %}
+                <div class="cart-item" data-item-id="{{ item.id }}">
+                    <div class="cart-item-image">
+                        {% if item.product_image %}
+                        <img src="{{ item.product_image }}" alt="{{ item.product_name }}">
+                        {% else %}
+                        <div class="image-placeholder"><i class="fas fa-leaf"></i></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="cart-item-info">
+                        <h3 class="cart-item-name">{{ item.product_name }}</h3>
+                        <p class="cart-item-price">₹{{ item.price }}</p>
+                    </div>
+
+                    <div class="cart-item-quantity">
+                        <button onclick="updateQuantity('{{ item.id }}', {{ item.quantity - 1 }})" class="qty-btn" {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                        <span class="qty-display">{{ item.quantity }}</span>
+                        <button onclick="updateQuantity('{{ item.id }}', {{ item.quantity + 1 }})" class="qty-btn">+</button>
+                    </div>
+
+                    <div class="cart-item-subtotal">
+                        <p class="subtotal-amount">₹{{ item.subtotal }}</p>
+                    </div>
+
+                    <button onclick="removeItem('{{ item.id }}')" class="remove-btn" title="Remove item">
+                        <svg width="20" height="20" viewBox="0 0 20 20">
+                            <path d="M15 5l-5 5-5-5-1.5 1.5 5 5-5 5L5 18l5-5 5 5 1.5-1.5-5-5 5-5z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary-section">
+                <div class="cart-summary">
+                    <h2>Order Summary</h2>
+                    
+                    <div class="summary-row">
+                        <span>Items ({{ cart['total_items'] }})</span>
+                        <span>₹{{ cart['total_price'] }}</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Delivery</span>
+                        <span class="free-delivery">FREE</span>
+                    </div>
+                    
+                    <div class="summary-divider"></div>
+                    
+                    <div class="summary-row summary-total">
+                        <span>Total Amount</span>
+                        <span>₹{{ cart['total_price'] }}</span>
+                    </div>
+
+                    <button onclick="proceedToCheckout()" class="btn-primary btn-large btn-block">
+                        Proceed to Checkout
+                    </button>
+
+                    <div class="payment-methods">
+                        <p>We Accept:</p>
+                        <div class="payment-icons">
+                            <span><i class="far fa-credit-card"></i> Cards</span>
+                            <span><i class="fas fa-mobile-alt"></i> UPI</span>
+                            <span><i class="fas fa-money-bill-wave"></i> COD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-benefits">
+                    <h3>Benefits</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> 100% Organic Products</li>
+                        <li><i class="fas fa-check"></i> Free Delivery on orders above ₹500</li>
+                        <li><i class="fas fa-check"></i> 7-Day Return Policy</li>
+                        <li><i class="fas fa-check"></i> Secure Payment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
+            <h2>Your cart is empty</h2>
+            <p>Add some products to get started</p>
+            <a href="{{ url_for('home') }}" class="btn-primary btn-large">Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) return;
+    
+    fetch(`/api/cart/update/${itemId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: newQuantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification('Failed to update cart', 'error');
+        }
+    });
+}
+
+function removeItem(itemId) {
+    if (!confirm('Remove this item from cart?')) return;
+    
+    fetch(`/api/cart/remove/${itemId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification('Failed to remove item', 'error');
+        }
+    });
+}
+
+function proceedToCheckout() {
+    // Redirect to checkout page
+    window.location.href = '{{ url_for("checkout") }}';
+}
+</script>
+{% endblock %}

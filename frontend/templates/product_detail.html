@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Agam Organics{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{{ url_for('home') }}">Home</a> &gt;
+            <a href="{{ url_for('home') }}?category={{ product.category }}">{{ product.category }}</a> &gt;
+            <span>{{ product.name }}</span>
+        </div>
+
+        <div class="product-detail-grid">
+            <!-- Product Images -->
+            <div class="product-images">
+                <div class="main-image">
+                    {% if product.image_url %}
+                    <img id="mainImage" src="{{ product.image_url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="image-placeholder"><i class="fas fa-leaf"></i></div>
+                    {% endif %}
+                </div>
+                
+                {% if product.additional_images %}
+                <div class="image-thumbnails">
+                    <img src="{{ product.image_url }}" alt="Main" onclick="changeImage(this.src)">
+                    {% for img in product.additional_images %}
+                    <img src="{{ img }}" alt="Thumbnail" onclick="changeImage(this.src)">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-detail-info">
+                <h1 class="product-detail-title">{{ product.name }}</h1>
+                
+                <div class="product-rating-section">
+                    <div class="rating-display">
+                        <span class="rating-number">{{ reviews.average_rating }}</span>
+                        <span class="rating-stars">
+                            {% for i in range(5) %}
+                                {% if i < reviews.average_rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <span class="rating-count">{{ reviews.total }} reviews</span>
+                </div>
+
+                <div class="product-price-section">
+                    {% if product.discount_price %}
+                    <span class="detail-price-original">₹{{ product.price }}</span>
+                    <span class="detail-price-current">₹{{ product.discount_price }}</span>
+                    <span class="discount-percent">{{ ((product.price - product.discount_price) / product.price * 100) | int }}% OFF</span>
+                    {% else %}
+                    <span class="detail-price-current">₹{{ product.price }}</span>
+                    {% endif %}
+                    <span class="price-unit">/ {{ product.unit }}</span>
+                </div>
+
+                <div class="product-description">
+                    <h3>Product Description</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Category:</span>
+                        <span class="meta-value">{{ product.category }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Unit:</span>
+                        <span class="meta-value">{{ product.unit }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Stock:</span>
+                        <span class="meta-value {% if product.stock > 10 %}in-stock{% else %}low-stock{% endif %}">
+                            {% if product.stock > 10 %}In Stock{% else %}Only {{ product.stock }} left{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="product-actions-detail">
+                    <div class="quantity-selector">
+                        <button onclick="decrementQuantity()" class="qty-btn">-</button>
+                        <input type="number" id="quantity" value="1" min="1" max="{{ product.stock }}" readonly>
+                        <button onclick="incrementQuantity({{ product.stock }})" class="qty-btn">+</button>
+                    </div>
+                    
+                    {% if session.get('access_token') %}
+                    <button onclick="addToCart('{{ product.id }}')" class="btn-primary btn-large">
+                        Add to Cart
+                    </button>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-primary btn-large">
+                        Login to Purchase
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h2 class="section-title">Customer Reviews</h2>
+            
+            <div class="reviews-summary">
+                <div class="rating-overview">
+                    <div class="rating-big">{{ reviews.average_rating }}</div>
+                    <div class="rating-stars-big">
+                        {% for i in range(5) %}
+                            {% if i < reviews.average_rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                        {% endfor %}
+                    </div>
+                    <p>Based on {{ reviews.total }} reviews</p>
+                </div>
+            </div>
+
+            <div class="reviews-list">
+                {% for review in reviews.reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-author">
+                            <div class="author-avatar">{{ review.user_name[0] }}</div>
+                            <div class="author-info">
+                                <h4>{{ review.user_name }}</h4>
+                                <p class="review-date">{{ review.created_at[:10] }}</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                                {% if i < review.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <h4 class="review-title">{{ review.title }}</h4>
+                    <p class="review-comment">{{ review.comment }}</p>
+                    
+                    {% if review.images %}
+                    <div class="review-images">
+                        {% for img in review.images %}
+                        <img src="{{ img }}" alt="Review image">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="review-helpful">
+                        <button class="helpful-btn"><i class="fas fa-thumbs-up"></i> Helpful ({{ review.helpful_count }})</button>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not reviews.reviews %}
+                <p class="no-reviews">No reviews yet. Be the first to review this product!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Similar Products -->
+        {% if similar_products %}
+        <div class="similar-products-section">
+            <h2 class="section-title">Similar Products</h2>
+            <div class="products-grid">
+                {% for product in similar_products %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                        <div class="product-image">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                            {% else %}
+                            <div class="product-placeholder"><i class="fas fa-leaf"></i></div>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-price">
+                                <span class="price-discounted">₹{{ product.discount_price or product.price }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function changeImage(src) {
+    document.getElementById('mainImage').src = src;
+}
+
+function incrementQuantity(max) {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) < max) {
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+function decrementQuantity() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+function addToCart(productId) {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Added to cart!', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    });
+}
+</script>
+{% endblock %}

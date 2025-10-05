@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Banner Carousel -->
+<section class="hero-banner-carousel">
+    <div class="carousel-container">
+        {% if banners %}
+            {% for banner in banners %}
+            <div class="carousel-slide {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}">
+                <div class="banner-image" style="background-image: url('{{ banner.image_url }}');">
+                    <div class="banner-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h2>{{ banner.title }}</h2>
+                            {% if banner.subtitle %}
+                            <p>{{ banner.subtitle }}</p>
+                            {% endif %}
+                            {% if banner.link_url %}
+                            <a href="{{ banner.link_url }}" class="btn-primary btn-large">{{ banner.button_text }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Carousel Controls -->
+            {% if banners|length > 1 %}
+            <button class="carousel-prev" onclick="changeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-next" onclick="changeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <!-- Carousel Indicators -->
+            <div class="carousel-indicators">
+                {% for banner in banners %}
+                <button class="indicator {% if loop.first %}active{% endif %}" onclick="goToSlide({{ loop.index0 }})"></button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Fallback banner if no banners in database -->
+            <div class="carousel-slide active">
+                <div class="banner-image" style="background: linear-gradient(135deg, var(--primary-gold) 0%, var(--accent-yellow) 100%);">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h2>Organic Masalas</h2>
+                            <p>Pure, Natural, and Authentic - Straight from Kerala Farms</p>
+                            <a href="#products" class="btn-primary btn-large">Shop Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Categories - Compact Horizontal -->
+<section class="categories-section">
+    <div class="container">
+        <div class="categories-scroll">
+            <button class="category-chip {% if not selected_category %}active{% endif %}" onclick="filterByCategory('')">
+                <i class="fas fa-th"></i> All Products
+            </button>
+            {% for category in categories %}
+            <button class="category-chip {% if selected_category == category %}active{% endif %}" onclick="filterByCategory('{{ category }}')">
+                <i class="fas fa-leaf"></i> {{ category }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Products Grid -->
+<section class="products-section" id="products">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Our Products</h2>
+            <div class="filter-controls">
+                <select class="filter-select" id="sortSelect" onchange="handleSortChange()">
+                    <option value="created_at" {% if selected_sort == 'created_at' %}selected{% endif %}>Latest</option>
+                    <option value="price" {% if selected_sort == 'price' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Rating</option>
+                    <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>Name: A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Loading products...
+        </div>
+
+        <div class="products-grid" id="productsGrid">
+            {% for product in products %}
+            <div class="product-card">
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-link">
+                    <div class="product-image">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                        <div class="product-placeholder">
+                            <span><i class="fas fa-leaf"></i></span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.discount_price %}
+                        <div class="discount-badge">
+                            {{ ((product.price - product.discount_price) / product.price * 100) | int }}% OFF
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description[:60] }}...</p>
+                        
+                        <div class="product-rating">
+                            <span class="rating-stars">
+                                {% for i in range(5) %}
+                                    {% if i < product.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="rating-text">{{ product.rating }} ({{ product.review_count }})</span>
+                        </div>
+                        
+                        <div class="product-price">
+                            {% if product.discount_price %}
+                            <span class="price-original">₹{{ product.price }}</span>
+                            <span class="price-discounted">₹{{ product.discount_price }}</span>
+                            {% else %}
+                            <span class="price-discounted">₹{{ product.price }}</span>
+                            {% endif %}
+                            <span class="product-unit">/ {{ product.unit }}</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <div class="product-actions">
+                    {% if session.get('access_token') %}
+                    <button onclick="addToCart('{{ product.id }}')" class="btn-primary btn-block">
+                        Add to Cart
+                    </button>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-primary btn-block">
+                        Login to Add
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not products %}
+        <div class="empty-state">
+            <p>No products found</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-leaf"></i></div>
+                <h3>100% Organic</h3>
+                <p>Certified organic products from trusted farms</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shipping-fast"></i></div>
+                <h3>Free Shipping</h3>
+                <p>On orders above ₹500</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-certificate"></i></div>
+                <h3>Quality Assured</h3>
+                <p>Tested for purity and authenticity</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-undo-alt"></i></div>
+                <h3>Easy Returns</h3>
+                <p>7-day return policy on all products</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+let currentCategory = '{{ selected_category }}';
+let currentSort = '{{ selected_sort }}';
+
+function filterByCategory(category) {
+    currentCategory = category;
+    loadProducts();
+}
+
+function handleSortChange() {
+    currentSort = document.getElementById('sortSelect').value;
+    loadProducts();
+}
+
+function loadProducts() {
+    // Show loading indicator
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('productsGrid').style.opacity = '0.5';
+    
+    // Build query parameters
+    let params = new URLSearchParams();
+    params.append('page', '1');
+    params.append('page_size', '20');
+    
+    if (currentCategory) {
+        params.append('category', currentCategory);
+    }
+    if (currentSort) {
+        params.append('sort_by', currentSort);
+    }
+    
+    // Fetch products from backend
+    fetch(`/api/products?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            updateProductsDisplay(data.products);
+            updateCategoryButtons();
+            updateSortDropdown();
+            
+            // Hide loading indicator
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('productsGrid').style.opacity = '1';
+            
+            // Update URL without refresh
+            const newUrl = currentCategory || currentSort ? 
+                `?${params.toString()}` : window.location.pathname;
+            window.history.pushState({}, '', newUrl);
+        })
+        .catch(error => {
+            console.error('Error loading products:', error);
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('productsGrid').style.opacity = '1';
+            showNotification('Failed to load products', 'error');
+        });
+}
+
+function updateProductsDisplay(products) {
+    const grid = document.getElementById('productsGrid');
+    
+    if (products.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem; text-align: center;">
+                <i class="fas fa-box-open" style="font-size: 4rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--gray-600);">No products found</h3>
+                <p style="color: var(--gray-500);">Try selecting a different category or sorting option.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const isLoggedIn = {{ 'true' if session.get('access_token') else 'false' }};
+    
+    grid.innerHTML = products.map(product => `
+        <div class="product-card">
+            <a href="/product/${product.id}" class="product-link">
+                <div class="product-image">
+                    ${product.image_url ? 
+                        `<img src="${product.image_url}" alt="${product.name}" loading="lazy">` :
+                        `<div class="product-placeholder"><span><i class="fas fa-leaf"></i></span></div>`
+                    }
+                    ${product.discount_price ? 
+                        `<div class="discount-badge">${Math.round((product.price - product.discount_price) / product.price * 100)}% OFF</div>` : ''
+                    }
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description.substring(0, 60)}...</p>
+                    <div class="product-rating">
+                        <span class="rating-stars">
+                            ${[0,1,2,3,4].map(i => 
+                                i < product.rating ? 
+                                '<i class="fas fa-star"></i>' : 
+                                '<i class="far fa-star"></i>'
+                            ).join('')}
+                        </span>
+                        <span class="rating-text">${product.rating} (${product.review_count})</span>
+                    </div>
+                    <div class="product-price">
+                        ${product.discount_price ? 
+                            `<span class="price-original">₹${product.price}</span>
+                             <span class="price-discounted">₹${product.discount_price}</span>` :
+                            `<span class="price-discounted">₹${product.price}</span>`
+                        }
+                        <span class="product-unit">/ ${product.unit || 'unit'}</span>
+                    </div>
+                </div>
+            </a>
+            
+            <div class="product-actions">
+                ${isLoggedIn ? 
+                    `<button onclick="addToCart('${product.id}')" class="btn-primary btn-block">
+                        Add to Cart
+                    </button>` :
+                    `<a href="/login" class="btn-primary btn-block">
+                        Login to Add
+                    </a>`
+                }
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateCategoryButtons() {
+    document.querySelectorAll('.category-chip').forEach(btn => {
+        const btnText = btn.textContent.trim();
+        if ((!currentCategory && btnText.includes('All Products')) || 
+            btnText.includes(currentCategory)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function updateSortDropdown() {
+    document.getElementById('sortSelect').value = currentSort;
+}
+
+function addToCart(productId) {
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Added to cart!', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Failed to add to cart', 'error');
+    });
+}
+
+// Banner carousel functionality
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+const indicators = document.querySelectorAll('.indicator');
+
+function changeSlide(direction) {
+    if (slides.length === 0) return;
+    
+    slides[currentSlide].classList.remove('active');
+    if (indicators.length > 0) {
+        indicators[currentSlide].classList.remove('active');
+    }
+    
+    currentSlide = (currentSlide + direction + slides.length) % slides.length;
+    
+    slides[currentSlide].classList.add('active');
+    if (indicators.length > 0) {
+        indicators[currentSlide].classList.add('active');
+    }
+}
+
+function goToSlide(index) {
+    if (slides.length === 0) return;
+    
+    slides[currentSlide].classList.remove('active');
+    if (indicators.length > 0) {
+        indicators[currentSlide].classList.remove('active');
+    }
+    
+    currentSlide = index;
+    
+    slides[currentSlide].classList.add('active');
+    if (indicators.length > 0) {
+        indicators[currentSlide].classList.add('active');
+    }
+}
+
+// Auto-advance carousel every 5 seconds
+if (slides.length > 1) {
+    setInterval(() => {
+        changeSlide(1);
+    }, 5000);
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Agam Organics{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <h1 class="page-title">Checkout</h1>
+    
+    <div class="checkout-container">
+        <!-- Left Column: Delivery & Payment -->
+        <div class="checkout-main">
+            <!-- Step 1: Delivery Address -->
+            <div class="checkout-section">
+                <div class="section-header-checkout">
+                    <h2><span class="step-number">1</span> Delivery Address</h2>
+                </div>
+                
+                <div class="address-selection">
+                    {% if addresses %}
+                        {% for address in addresses %}
+                        <label class="address-card {% if address.is_default %}selected{% endif %}">
+                            <input type="radio" name="address" value="{{ address.id }}" {% if address.is_default %}checked{% endif %}>
+                            <div class="address-content">
+                                <div class="address-header">
+                                    <strong>{{ address.address_line1 }}</strong>
+                                    {% if address.is_default %}
+                                    <span class="badge badge-primary">Default</span>
+                                    {% endif %}
+                                </div>
+                                <p class="address-details">
+                                    {% if address.address_line2 %}{{ address.address_line2 }}, {% endif %}
+                                    {{ address.city }}, {{ address.state }} - {{ address.pincode }}
+                                </p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                        
+                        <button type="button" class="btn-secondary" onclick="showAddAddressModal()">
+                            <i class="fas fa-plus"></i> Add New Address
+                        </button>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>No delivery address found</p>
+                            <button type="button" class="btn-primary" onclick="showAddAddressModal()">
+                                Add Delivery Address
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 2: Payment Method -->
+            <div class="checkout-section">
+                <div class="section-header-checkout">
+                    <h2><span class="step-number">2</span> Payment Method</h2>
+                </div>
+                
+                <div class="payment-methods">
+                    <label class="payment-card">
+                        <input type="radio" name="payment" value="online" checked>
+                        <div class="payment-content">
+                            <div class="payment-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <strong>Online Payment</strong>
+                                <p>Pay securely with UPI, Cards, Net Banking</p>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <label class="payment-card">
+                        <input type="radio" name="payment" value="cod">
+                        <div class="payment-content">
+                            <div class="payment-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div>
+                                <strong>Cash on Delivery</strong>
+                                <p>Pay when you receive the order</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order Summary -->
+        <div class="checkout-sidebar">
+            <div class="order-summary-card">
+                <h3>Order Summary</h3>
+                
+                <div class="summary-items">
+                    {% for item in cart['items'] %}
+                    <div class="summary-item">
+                        <div class="item-image">
+                            {% if item.product_image %}
+                            <img src="{{ item.product_image }}" alt="{{ item.product_name }}">
+                            {% else %}
+                            <div class="placeholder"><i class="fas fa-leaf"></i></div>
+                            {% endif %}
+                        </div>
+                        <div class="item-details">
+                            <h4>{{ item.product_name }}</h4>
+                            <p>Qty: {{ item.quantity }}</p>
+                        </div>
+                        <div class="item-price">
+                            ₹{{ item.subtotal }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-row">
+                    <span>Subtotal ({{ cart['total_items'] }} items)</span>
+                    <span>₹{{ cart['total_price'] }}</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Delivery Charges</span>
+                    <span class="text-success">FREE</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-row total">
+                    <strong>Total Amount</strong>
+                    <strong>₹{{ cart['total_price'] }}</strong>
+                </div>
+
+                <div class="summary-savings">
+                    {% if cart['total_savings'] > 0 %}
+                    <i class="fas fa-tag"></i> You save ₹{{ cart['total_savings'] }} on this order
+                    {% endif %}
+                </div>
+
+                <button type="button" class="btn-primary btn-block btn-large" onclick="proceedToPayment()">
+                    <i class="fas fa-lock"></i> Place Order
+                </button>
+
+                <div class="secure-payment">
+                    <i class="fas fa-shield-alt"></i> 100% Secure Payments
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div id="addAddressModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add Delivery Address</h3>
+            <button class="modal-close" onclick="closeAddAddressModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="addAddressForm" onsubmit="saveAddress(event)">
+            <div class="form-group">
+                <label for="address_line1">Address Line 1 *</label>
+                <input type="text" id="address_line1" name="address_line1" required>
+            </div>
+            <div class="form-group">
+                <label for="address_line2">Address Line 2</label>
+                <input type="text" id="address_line2" name="address_line2">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State *</label>
+                    <input type="text" id="state" name="state" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="pincode">Pincode *</label>
+                <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_default"> Set as default address
+                </label>
+            </div>
+            <button type="submit" class="btn-primary btn-block">Save Address</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function showAddAddressModal() {
+    document.getElementById('addAddressModal').style.display = 'flex';
+}
+
+function closeAddAddressModal() {
+    document.getElementById('addAddressModal').style.display = 'none';
+    document.getElementById('addAddressForm').reset();
+}
+
+function saveAddress(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+        address_line1: formData.get('address_line1'),
+        address_line2: formData.get('address_line2'),
+        city: formData.get('city'),
+        state: formData.get('state'),
+        pincode: formData.get('pincode'),
+        is_default: formData.get('is_default') === 'on'
+    };
+
+    fetch('/api/profile/addresses', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Address added successfully!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Failed to add address', 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Failed to add address', 'error');
+    });
+}
+
+function proceedToPayment() {
+    const selectedAddress = document.querySelector('input[name="address"]:checked');
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
+    
+    if (!selectedAddress) {
+        showNotification('Please select a delivery address', 'error');
+        return;
+    }
+    
+    if (!selectedPayment) {
+        showNotification('Please select a payment method', 'error');
+        return;
+    }
+
+    const paymentMethod = selectedPayment.value;
+    const addressId = selectedAddress.value;
+
+    if (paymentMethod === 'cod') {
+        // Cash on Delivery - Create order directly
+        createOrder(addressId, paymentMethod);
+    } else {
+        // Online Payment - Initialize Razorpay
+        initiateRazorpay(addressId);
+    }
+}
+
+function createOrder(addressId, paymentMethod, paymentDetails = null) {
+    const orderData = {
+        address_id: addressId,
+        payment_method: paymentMethod
+    };
+
+    if (paymentDetails) {
+        orderData.payment_details = paymentDetails;
+    }
+
+    fetch('/api/checkout/create-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Response not OK:', response.status, response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Order response:', data);
+        if (data.success) {
+            showNotification('Order placed successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = '/orders/' + data.order_id;
+            }, 1500);
+        } else {
+            showNotification(data.message || data.error || 'Failed to create order', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Order creation error:', error);
+        showNotification('Failed to create order: ' + error.message, 'error');
+    });
+}
+
+function initiateRazorpay(addressId) {
+    // Get order details for Razorpay
+    fetch('/api/checkout/razorpay-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ address_id: addressId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Razorpay order response not OK:', response.status, response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Razorpay order response:', data);
+        if (data.success) {
+            const options = {
+                key: data.razorpay_key,
+                amount: data.amount,
+                currency: 'INR',
+                name: 'Agam Organics',
+                description: 'Order Payment',
+                order_id: data.razorpay_order_id,
+                handler: function(response) {
+                    // Payment successful
+                    createOrder(addressId, 'online', {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    });
+                },
+                prefill: {
+                    name: '{{ session.get("user_name", "") }}',
+                    email: '{{ session.get("user_email", "") }}'
+                },
+                theme: {
+                    color: '#B8860B'
+                },
+                modal: {
+                    ondismiss: function() {
+                        showNotification('Payment cancelled', 'error');
+                    }
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        } else {
+            showNotification(data.message || data.error || 'Failed to initialize payment', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Razorpay initialization error:', error);
+        showNotification('Failed to initialize payment: ' + error.message, 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Reuse existing notification system
+    alert(message);
+}
+</script>
+{% endblock %}

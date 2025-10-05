@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - Agam Organics{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-confirmation {
+    max-width: 800px;
+    margin: var(--spacing-2xl) auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.success-icon {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.success-icon i {
+    font-size: 4rem;
+    color: var(--success-color);
+}
+
+.order-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.order-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.order-header h1 {
+    color: var(--success-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.order-header p {
+    color: var(--text-secondary);
+}
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .order-info {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+.info-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.info-item .info-value {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.info-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.order-status {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background: #cfe2ff;
+    color: #084298;
+}
+
+.status-shipped {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-delivered {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.status-paid {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-cod {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.delivery-address {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.delivery-address h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.address-details {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.order-items {
+    margin-bottom: var(--spacing-xl);
+}
+
+.order-items h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.order-item {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.item-image .placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--background-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.item-quantity {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.item-price {
+    text-align: right;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.order-summary {
+    background: var(--background-secondary);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+}
+
+.summary-row.total {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 2px solid var(--border-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.order-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid;
+        }
+        
+        .btn-primary {
+            background: #B8860B;
+            color: white;
+            border-color: #B8860B;
+        }
+        
+        .btn-primary:hover {
+            background: #8B6914;
+            border-color: #8B6914;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+        }
+        
+        .btn-outline-primary {
+            background: white;
+            color: #B8860B;
+            border-color: #B8860B;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #FFF8DC;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+@media (max-width: 768px) {
+    .order-info {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .order-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-action {
+        min-height: 80px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-confirmation">
+    <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+
+    <div class="order-card">
+        <div class="order-header">
+            <h1>Order Placed Successfully!</h1>
+            <p>Thank you for your order. We'll send you a confirmation email shortly.</p>
+        </div>
+
+        <div class="order-info">
+            <div class="info-item">
+                <div class="info-label">Order Number</div>
+                <div class="info-value">#{{ order.order_number if order.order_number else order.id[:8].upper() }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Order Date</div>
+                <div class="info-value">{{ order.created_at[:19].replace('T', ' ') if order.created_at else 'N/A' }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Status</div>
+                <div class="info-value">
+                    <span class="order-status status-{{ order.status }}">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Payment Method</div>
+                <div class="info-value">
+                    {% if order.payment_method == 'cod' %}
+                        Cash on Delivery
+                    {% elif order.payment_method == 'online' %}
+                        Online Payment
+                    {% else %}
+                        {{ order.payment_method|title }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Payment Status</div>
+                <div class="info-value">
+                    <span class="order-status status-{{ order.payment_status }}">
+                        {{ order.payment_status|title }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="delivery-address">
+            <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
+            <div class="address-details">
+                {% if order.shipping_address %}
+                    <strong>{{ order.shipping_address.address_line1 }}</strong><br>
+                    {% if order.shipping_address.address_line2 %}
+                        {{ order.shipping_address.address_line2 }}<br>
+                    {% endif %}
+                    {{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}<br>
+                    <strong>Phone:</strong> 
+                    {% if order.shipping_address.phone %}
+                        {{ order.shipping_address.phone }}
+                    {% elif order.shipping_address.get('phone') %}
+                        {{ order.shipping_address.get('phone') }}
+                    {% elif order.shipping_address.get('mobile') %}
+                        {{ order.shipping_address.get('mobile') }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                {% else %}
+                    <p>Address information not available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="order-items">
+            <h3><i class="fas fa-box"></i> Order Items</h3>
+            {% if order['items'] %}
+                {% for item in order['items'] %}
+                <div class="order-item">
+                    <div class="item-image">
+                        {% if item.product_image %}
+                        <img src="{{ item.product_image }}" alt="{{ item.product_name }}">
+                        {% else %}
+                        <div class="placeholder"><i class="fas fa-leaf"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">{{ item.product_name }}</div>
+                        <div class="item-quantity">Quantity: {{ item.quantity }}</div>
+                    </div>
+                    <div class="item-price">
+                        ₹{{ item.price * item.quantity }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No items found</p>
+            {% endif %}
+        </div>
+
+        <div class="order-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹{{ order.total_amount }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery Charges</span>
+                <span class="text-success">FREE</span>
+            </div>
+            <div class="summary-row total">
+                <strong>Total Amount</strong>
+                <strong>₹{{ order.total_amount }}</strong>
+            </div>
+        </div>
+
+        <div class="order-actions">
+            <a href="{{ url_for('home') }}" class="btn btn-primary" style="flex: 1; text-decoration: none;">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Continue Shopping</span>
+            </a>
+            <a href="{{ url_for('profile') }}#orders" class="btn btn-outline-primary" style="flex: 1; text-decoration: none;">
+                <i class="fas fa-list"></i>
+                <span>View All Orders</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
