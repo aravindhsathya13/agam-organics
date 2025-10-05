@@ -1,9 +1,8 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-supabase==2.7.4
+supabase==2.0.3
 python-dotenv==1.0.0
 pydantic==2.11.10 --only-binary :all:
-# pydantic-core==2.20.0 --only-binary :all:
 pydantic-settings==2.1.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
