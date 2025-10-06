@@ -1229,8 +1229,10 @@ img {
 
     /* Footer */
     .footer {
-        margin-bottom: 60px;
+        margin-bottom: calc(60px + var(--spacing-md));
         padding-bottom: var(--spacing-xl);
+        position: relative;
+        z-index: 1;
     }
     
     .footer-content {
@@ -1340,9 +1342,11 @@ img {
         background: #fff;
         border-top: 1px solid var(--gray-200);
         box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-        z-index: 1000;
+        z-index: 1500;
         justify-content: space-around;
         align-items: center;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
     .bottom-nav-item {
         flex: 1;
@@ -1374,10 +1378,18 @@ img {
         display: none;
     }
     body {
-        padding-bottom: 60px !important;
+        padding-bottom: calc(60px + var(--spacing-md)) !important;
+        position: relative;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
     }
     main.main-content {
         padding-top: var(--spacing-xs);
+        position: relative;
+        z-index: 1;
+        background-color: var(--gray-50);
+        min-height: calc(100vh - 60px);
     }
 }
 
