@@ -148,6 +148,69 @@ if (searchInput) {
   );
 }
 
+// Mobile search functionality
+document.addEventListener("DOMContentLoaded", function () {
+  const searchToggle = document.getElementById("mobile-search-toggle");
+  const searchOverlay = document.getElementById("mobile-search-overlay");
+  const searchClose = document.getElementById("mobile-search-close");
+  const searchInput = document.querySelector(".mobile-search-input");
+
+  if (searchToggle && searchOverlay && searchClose) {
+    searchToggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      searchOverlay.classList.add("active");
+      if (searchInput) {
+        searchInput.focus();
+      }
+    });
+
+    searchClose.addEventListener("click", function () {
+      searchOverlay.classList.remove("active");
+    });
+  }
+
+  // Handle active states for bottom navigation
+  const currentPath = window.location.pathname;
+  const bottomNavItems = document.querySelectorAll(".bottom-nav-item");
+  bottomNavItems.forEach((item) => {
+    if (item.getAttribute("href") === currentPath) {
+      item.classList.add("active");
+    }
+  });
+});
+
+// Performance optimizations
+document.addEventListener("DOMContentLoaded", function () {
+  // Initialize page transition
+  const mainContent = document.querySelector(".main-content");
+  if (mainContent) {
+    mainContent.classList.add("page-transition");
+  }
+
+  // Handle navigation loading states
+  const handleNavClick = (e) => {
+    const navItem = e.currentTarget;
+    if (
+      navItem.getAttribute("href") !== "#" &&
+      !navItem.id.includes("toggle")
+    ) {
+      navItem.classList.add("loading");
+      mainContent.classList.add("loading");
+    }
+  };
+
+  // Add loading indicators to navigation items
+  document.querySelectorAll(".bottom-nav-item").forEach((item) => {
+    item.addEventListener("click", handleNavClick);
+  });
+
+  // Optimize image loading
+  const lazyImages = document.querySelectorAll("img:not([loading])");
+  lazyImages.forEach((img) => {
+    img.setAttribute("loading", "lazy");
+  });
+});
+
 // Handle flash message auto-dismiss
 document.addEventListener("DOMContentLoaded", function () {
   const flashMessages = document.querySelectorAll(".flash");

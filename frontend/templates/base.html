@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -20,6 +23,7 @@
                         <img src="{{ url_for('static', filename='images/logo.jpeg') }}" 
                              alt="Agam Organics Logo" 
                              class="logo-image"
+                             loading="eager"
                              onerror="this.style.display='none'">
                         <div class="logo-text">
                             <h1>Agam Organics</h1>
@@ -58,6 +62,21 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Search Overlay -->
+    <div class="mobile-search-overlay" id="mobile-search-overlay">
+        <div class="mobile-search-container">
+            <form action="{{ url_for('home') }}" method="get" class="mobile-search-form">
+                <button type="button" class="mobile-search-back" id="mobile-search-close">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <input type="text" name="search" placeholder="Search for organic masalas..." class="mobile-search-input">
+                <button type="submit" class="mobile-search-submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -118,6 +137,37 @@
             </div>
         </div>
     </footer>
+
+    <!-- Sticky Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="{{ url_for('home') }}" class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="bottom-nav-item" id="mobile-search-toggle">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="{{ url_for('cart') }}" class="bottom-nav-item {% if request.endpoint == 'cart' %}active{% endif %}">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Cart</span>
+        </a>
+        {% if session.get('access_token') %}
+        <a href="{{ url_for('profile') }}" class="bottom-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+        <a href="{{ url_for('logout') }}" class="bottom-nav-item">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="bottom-nav-item {% if request.endpoint == 'login' %}active{% endif %}">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </nav>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
