@@ -73,19 +73,6 @@
                             </div>
                         </div>
                     </label>
-                    
-                    <label class="payment-card">
-                        <input type="radio" name="payment" value="cod">
-                        <div class="payment-content">
-                            <div class="payment-icon">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                            <div>
-                                <strong>Cash on Delivery</strong>
-                                <p>Pay when you receive the order</p>
-                            </div>
-                        </div>
-                    </label>
                 </div>
             </div>
         </div>
@@ -268,12 +255,9 @@ function proceedToPayment() {
 function createOrder(addressId, paymentMethod, paymentDetails = null) {
     const orderData = {
         address_id: addressId,
-        payment_method: paymentMethod
+        payment_method: paymentMethod,
+        payment_details: paymentDetails || {}
     };
-
-    if (paymentDetails) {
-        orderData.payment_details = paymentDetails;
-    }
 
     fetch('/api/checkout/create-order', {
         method: 'POST',

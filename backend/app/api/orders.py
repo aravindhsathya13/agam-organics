@@ -143,7 +143,7 @@ async def get_order(order_id: str, current_user: dict = Depends(get_current_user
         # Get order items with product images
         try:
             # Try with join first - get image from products table
-            items = db.table("order_items").select("*, products(image)").eq("order_id", order_id).execute()
+            items = db.table("order_items").select("*, products(image_url)").eq("order_id", order_id).execute()
             print(f"[DEBUG] Fetched {len(items.data)} order items with join")
         except Exception as join_error:
             print(f"Join query failed: {join_error}, falling back to basic query")
@@ -158,7 +158,7 @@ async def get_order(order_id: str, current_user: dict = Depends(get_current_user
             
             # Extract image from nested products object if available
             if 'products' in item_dict and item_dict['products']:
-                product_image = item_dict['products'].get('image')
+                product_image = item_dict['products'].get('image_url')
                 item_dict['product_image'] = product_image
                 print(f"[DEBUG] Product image from join: {product_image}")
             else:
@@ -166,9 +166,9 @@ async def get_order(order_id: str, current_user: dict = Depends(get_current_user
                 try:
                     product_id = item_dict.get('product_id')
                     if product_id:
-                        product_data = db.table("products").select("image").eq("id", product_id).execute()
-                        if product_data.data and product_data.data[0].get('image'):
-                            item_dict['product_image'] = product_data.data[0]['image']
+                        product_data = db.table("products").select("image_url").eq("id", product_id).execute()
+                        if product_data.data and product_data.data[0].get('image_url'):
+                            item_dict['product_image'] = product_data.data[0]['image_url']
                             print(f"[DEBUG] Product image from separate query: {product_data.data[0]['image']}")
                         else:
                             print(f"[DEBUG] No product image found for product_id: {product_id}")

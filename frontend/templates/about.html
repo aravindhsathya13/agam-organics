@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Agam Organics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-wrapper {
+        padding: 40px 20px;
+        background-color: #fff;
+    }
+
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Page Title */
+    .page-title {
+        text-align: center;
+        color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        font-weight: 600;
+        padding: 0 20px;
+    }
+
+    .page-title::after {
+        content: '';
+        display: block;
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #DAA520, #B8860B);
+        margin: 1rem auto 0;
+        border-radius: 2px;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, 
+            #DAA520 0%,
+            #FFD700 25%,
+            #CD853F 50%,
+            #B8860B 75%,
+            #DAA520 100%
+        );
+        background-size: 400% 400%;
+        animation: gradientMove 15s ease infinite;
+        border-radius: 16px;
+        padding: 0;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 3rem;
+        margin: 40px auto;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(218, 165, 32, 0.2);
+        max-width: 1100px;
+    }
+
+    .hero-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.1;
+        z-index: 1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .hero-title {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        font-weight: 600;
+        line-height: 1.3;
+        padding: 0 20px;
+    }
+
+    .hero-text {
+        color: white;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .hero-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.15);
+        z-index: 1;
+    }
+
+    .hero-banner-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-banner-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 1000px;
+        padding: 0 40px;
+        text-align: center;
+    }
+
+    .hero-banner h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        line-height: 1.2;
+    }
+
+    .hero-banner p {
+        font-size: 1.4rem;
+        color: #fff;
+        line-height: 1.6;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .hero-banner {
+            padding: 60px 20px;
+        }
+
+        .hero-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-banner p {
+            font-size: 1.2rem;
+        }
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Founders Section Styles */
+    .section-title {
+        text-align: center;
+        font-size: 2.2rem;
+        color: #333;
+        margin: 3rem 0 2rem;
+        font-weight: 600;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #DAA520, #B8860B);
+        margin: 1rem auto 0;
+        border-radius: 2px;
+    }
+
+    .founders-section {
+        padding: 4rem 0;
+        background-color: #fff;
+        width: 100%;
+    }
+
+    .founders-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 40px;
+        width: 100%;
+        align-items: start;
+    }
+
+    .founder-frame {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        background: transparent;
+        box-shadow: none;
+        transition: none;
+        height: auto;
+        min-width: 0;
+    }
+
+    .founder-image-container {
+        width: 220px;
+        height: 220px;
+        aspect-ratio: 1 / 1;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .founder-portrait {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+        aspect-ratio: 1 / 1;
+        display: block;
+    }
+
+    .founder-info {
+        text-align: center;
+        width: 100%;
+    }
+
+    .founder-info h3 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .founder-info p {
+        margin: 0;
+        color: #666;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        font-weight: 500;
+    }
+
+    .founder-image-container {
+        width: 280px;
+        height: 280px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .founder-portrait {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .founder-frame:hover .founder-image-container {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        .founders-grid {
+            grid-template-columns: repeat(3, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 30px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .founders-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            padding: 0 25px;
+        }
+        
+        .founder-image-container {
+            width: 250px;
+            height: 250px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .founders-grid {
+            grid-template-columns: 1fr;
+            max-width: 400px;
+            gap: 4rem;
+            padding: 0 20px;
+        }
+
+        .founder-image-container {
+            width: 280px;
+            height: 280px;
+        }
+
+        .founder-frame {
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-wrapper">
+    <div class="about-container">
+        <h1 class="page-title">About Agam Organics</h1>
+
+        <div class="hero-banner">
+            <div class="hero-banner-content">
+                <h2 class="hero-title">Bringing Tamil Nadu's Finest Organic Spices to Your Kitchen</h2>
+                <p class="hero-text">Founded in the heart of Tamil Nadu, Agam Organics brings you the finest organic masalas crafted with traditional expertise. Our journey began with a simple mission: to deliver authentic, pure, and organic spices to every kitchen.</p>
+            </div>
+        </div>
+
+    <div class="founders-section">
+        <h2 class="section-title">Our Founders</h2>
+        <div class="founders-grid">
+            <div class="founder-frame">
+                <div class="founder-image-container">
+                    <img src="{{ url_for('static', filename='images/profiles/AraviNarmu.jpg') }}" 
+                         alt="Founders"
+                         loading="lazy"
+                         class="founder-portrait">
+                </div>
+                <div class="founder-info">
+                    <h3>Aravindh & Narmadha</h3>
+                    <p>Co-Founders</p>
+                </div>
+            </div>
+            <div class="founder-frame">
+                <div class="founder-image-container">
+                    <img src="{{ url_for('static', filename='images/profiles/RaguPriya.jpg') }}" 
+                         alt="Co-Founders"
+                         loading="lazy"
+                         class="founder-portrait">
+                </div>
+                <div class="founder-info">
+                    <h3>Ragu & Priya</h3>
+                    <p>Co-Founders</p>
+                </div>
+            </div>
+            <div class="founder-frame">
+                <div class="founder-image-container">
+                    <img src="{{ url_for('static', filename='images/profiles/VijiSathya.jpg') }}" 
+                         alt="Co-Founders"
+                         loading="lazy"
+                         class="founder-portrait">
+                </div>
+                <div class="founder-info">
+                    <h3>Viji & Sathya</h3>
+                    <p>Co-Founders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="our-journey">
+        <h2 class="section-title">Our Story</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Early 2025</h3>
+                    <p>Founded with a vision to bring authentic Tamil flavors to every kitchen</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Mid 2025</h3>
+                    <p>Partnered with organic spice farmers across Tamil Nadu's traditional farming regions</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Present</h3>
+                    <p>Growing our family of happy customers with premium organic products</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-content">
+        <div class="about-section">
+            <h2>Our Mission</h2>
+            <p>We are committed to preserving traditional Tamil Nadu spice-making methods while bringing innovation in organic farming. Every product in our collection is carefully sourced from local farmers, processed with expertise, and packaged to maintain its authentic flavor and aroma.</p>
+        </div>
+
+        <div class="about-values">
+            <h2>Our Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-header">
+                        <i class="fas fa-leaf"></i>
+                        <h3>Organic</h3>
+                    </div>
+                    <p>100% organic ingredients from Tamil Nadu's finest farms</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-header">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Community</h3>
+                    </div>
+                    <p>Supporting local farmers and traditional farming</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-header">
+                        <i class="fas fa-heart"></i>
+                        <h3>Authentic</h3>
+                    </div>
+                    <p>Traditional Tamil Nadu recipes and processes</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-header">
+                        <i class="fas fa-seedling"></i>
+                        <h3>Sustainable</h3>
+                    </div>
+                    <p>Eco-friendly practices and packaging</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

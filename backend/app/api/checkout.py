@@ -22,7 +22,7 @@ class CheckoutRequest(BaseModel):
     """Checkout request model"""
     address_id: str
     payment_method: str
-    payment_details: dict | None = None
+    payment_details: dict = {}
 
 
 class RazorpayOrderRequest(BaseModel):
@@ -115,7 +115,7 @@ async def create_order(
     
     # Get cart items
     cart_items = db.table("cart").select(
-        "*, products(id, name, price, discount_price, stock)"
+        "*, products(id, name, price, discount_price, stock, image_url)"
     ).eq("user_id", user_id).execute()
     
     if not cart_items.data:
@@ -127,19 +127,19 @@ async def create_order(
     if not address.data:
         raise HTTPException(status_code=404, detail="Address not found")
     
-    # Verify payment if online
-    if checkout.payment_method == "online" and checkout.payment_details:
-        # Verify Razorpay signature
-        is_valid = verify_razorpay_signature(
-            checkout.payment_details.get("razorpay_order_id"),
-            checkout.payment_details.get("razorpay_payment_id"),
-            checkout.payment_details.get("razorpay_signature")
-        )
-        if not is_valid:
-            raise HTTPException(status_code=400, detail="Invalid payment signature")
-        payment_status = "paid"
-    else:
-        payment_status = "cod"
+    # Verify online payment
+    if not checkout.payment_details:
+        raise HTTPException(status_code=400, detail="Payment details are required")
+
+    # Verify Razorpay signature
+    is_valid = verify_razorpay_signature(
+        checkout.payment_details.get("razorpay_order_id"),
+        checkout.payment_details.get("razorpay_payment_id"),
+        checkout.payment_details.get("razorpay_signature")
+    )
+    if not is_valid:
+        raise HTTPException(status_code=400, detail="Invalid payment signature")
+    payment_status = "paid"
     
     # Calculate total and prepare order items
     total_amount = 0.0

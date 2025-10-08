@@ -295,6 +295,30 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route('/about')
+def about():
+    """About Us page"""
+    return render_template('about.html')
+
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Contact Us page"""
+    if request.method == 'POST':
+        # Handle contact form submission
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        
+        # TODO: Add email sending functionality
+        # For now, just flash a success message
+        flash(f'Thank you {name}, your message has been received. We will get back to you soon!', 'success')
+        return redirect(url_for('contact'))
+        
+    return render_template('contact.html')
+
+
 # Debug endpoint
 @app.route('/debug/session')
 def debug_session():
